@@ -64,6 +64,10 @@ struct Mode2: OptionSet {
     static let invert      = Mode2(rawValue: 0x10)
 }
 
+public enum PCA9685Error: Error {
+    case I2CAddressUnreachable
+}
+
 public class PCA9685 {
     public static let defaultAdafruitAddress: UInt8 = 0x40
 
@@ -75,12 +79,12 @@ public class PCA9685 {
 
     private let endpoint: BoardI2CEndpoint
 
-    public init(i2cBus: BoardI2CBus, address: UInt8 = defaultAdafruitAddress) {
+    public init(i2cBus: BoardI2CBus, address: UInt8 = defaultAdafruitAddress) throws {
         self.frequency = 0
         
         self.endpoint = i2cBus[address]
         guard self.endpoint.reachable else {
-            fatalError("I2C Address is Unreachable")
+            throw PCA9685Error.I2CAddressUnreachable
         }
 
         // Now, Configure the PCA9685
